@@ -3,16 +3,16 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=40GB
+#SBATCH --mem=4GB
 #SBATCH --time=01:00:00
-#SBATCH --job-name=Dedalus slurm example
+#SBATCH --job-name=Dedalus_slurm_example
 #SBATCH --mail-type=END
-#SBATCH --mail-user=<yourusrnm>@nyu.edu
+#SBATCH --mail-user=sd3201@nyu.edu
 #SBATCH --output=slurm_%j.out
 
 module purge
 
-cd /scratch/<yourusrnm>/dedalus/examples/ivp_2d_shear_flow
+cd /scratch/sd3201/dedalus/examples/ivp_2d_shear_flow
 
 # save the revelant slurm parameters and delete the rest
 CPUS_PER_TASK=$SLURM_CPUS_PER_TASK
