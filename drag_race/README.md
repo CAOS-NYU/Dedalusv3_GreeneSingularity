@@ -1,7 +1,7 @@
 # Drag Racing Dedalus on Different Machines
 To make sure we set up Dedalus correctly on Greene, we run some Dedalus codes on some different environments to compare them. 
 
-Note: This note is incomplete. We would like to do a proper scaling study on larger (3D) problems [this one](https://github.com/DedalusProject/dedalus_scaling). But for now the results show Dedalus is working on Greene and the more ambitious goal is for the future.
+Note: This note is incomplete. We would like to do a proper scaling study on larger (3D) problems like [this one](https://github.com/DedalusProject/dedalus_scaling). But for now the results show Dedalus is working on Greene and the more ambitious goal is for the future.
 
 ## The 2D Rayleigh-Benard convection code
 We run the [2D Rayleigh-Benard convection code](https://github.com/DedalusProject/dedalus/blob/master/examples/ivp_2d_rayleigh_benard/rayleigh_benard.py). 

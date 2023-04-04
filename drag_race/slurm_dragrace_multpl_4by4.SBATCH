@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4GB
 #SBATCH --time=02:00:00
-#SBATCH --job-name=Dedalus_slurm_example
+#SBATCH --job-name=dragrace_multpl_4by4
 #SBATCH --mail-type=END
 #SBATCH --mail-user=sd3201@nyu.edu
 #SBATCH --output=dragrace_multpl_4by4_result.out
