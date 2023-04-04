@@ -1,1 +1,2 @@
 slurm_example_sd3201eg.SBATCH
+*.h5
