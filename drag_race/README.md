@@ -31,10 +31,11 @@ Greene is much faster than my laptop. This is a surprise to be sure, but a welco
 
 ### On Greene using multiple nodes
 For the sake of fareness, we run the code on Greene still using 16 codes, but on 4 nodes with 4 cores each. We use the sbatch script [`slurm_dragrace_multpl_4by4.SBATCH`](https://github.com/Empyreal092/Dedalusv3_GreeneSingularity/blob/main/drag_race/slurm_dragrace_multpl_4by4.SBATCH). We have the timing result:
+
     2023-04-04 17:11:54,562 solvers 0/16 INFO :: Setup time (init - iter 0): 1.155 sec
     2023-04-04 17:11:54,562 solvers 0/16 INFO :: Warmup time (iter 0-10): 0.3413 sec
     2023-04-04 17:11:54,562 solvers 0/16 INFO :: Run time (iter 10-end): 33.98 sec
     2023-04-04 17:11:54,563 solvers 0/16 INFO :: CPU time (iter 10-end): 0.151 cpu-hr
     2023-04-04 17:11:54,563 solvers 0/16 INFO :: Speed: 8.766e+05 mode-stages/cpu-sec
 
-We see that the multiple nodes sey-up is just as fast as the single node case. This means we are not bottlenecked by network communication on Greene.
+We see that the multiple nodes set-up is just as fast as the single node case. This means we are not bottlenecked by network communication on Greene. Great!
