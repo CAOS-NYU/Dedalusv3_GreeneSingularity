@@ -7,12 +7,12 @@
 #SBATCH --time=01:00:00
 #SBATCH --job-name=Dedalus_slurm_example
 #SBATCH --mail-type=END
-#SBATCH --mail-user=sd3201@nyu.edu
+#SBATCH --mail-user=<yourusrnm>@nyu.edu
 #SBATCH --output=slurm_%j.out
 
 module purge
 
-cd /scratch/sd3201/dedalus/examples/ivp_2d_shear_flow
+cd /scratch/<yourusrnm>/dedalus/examples/ivp_2d_shear_flow
 
 # save the revelant slurm parameters and delete the rest
 CPUS_PER_TASK=$SLURM_CPUS_PER_TASK
@@ -22,7 +22,7 @@ for e in $(env | grep SLURM_ | cut -d= -f1); do unset $e; done
 singularity \
     exec \
     --overlay /home/sd3201/dedalus3/dedalus3_mpisinglenode.ext3:ro \
-    /scratch/work/public/singularity/ubuntu-20.04.4.sif \
+    /scratch/work/public/singularity/ubuntu-22.04.1.sif \
     /bin/bash -c "
 source /ext3/env.sh
 export OMP_NUM_THREADS=1

@@ -1,4 +1,5 @@
 
+
 # Using Dedalus on NYU Greene Cluster
 
 [Dedalus](https://dedalus-project.org/) is a flexible differential equations solver using spectral methods. It is MPI-parallelized therefore it can make efficient use to high performance computing resources like the [NYU Greene Clucster](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene?authuser=0). The cluster uses Singularity containers to manage packages. Because of the use of MPI, the Singularity container construction for Dedalus v3 is not trivial, thus making running Dedalus on Greene difficult. This note aims at lowering that barrier. First, we will learn how to use an already-made Singularity container. Then we will walk through how to make a Dedalus v3 Singularity.
@@ -19,27 +20,27 @@ Once we are in, paste the following commands in to start the already made singul
 
     singularity exec --overlay \
 	    /home/sd3201/dedalus3/dedalus3_mpisinglenode.ext3:ro \
-	    /scratch/work/public/singularity/ubuntu-20.04.4.sif /bin/bash
+	    /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
 	for e in $(env | grep SLURM_ | cut -d= -f1); do unset $e; done
     source /ext3/env.sh
-    export OMP_NUM_THREADS=1
-    export NUMEXPR_MAX_THREADS=1
-You might be concerned with the last two commands, which essentially turns off the OpenMP shared parallelism. But this is recommended for Dedalus's performance (see Dedalus documentation on [Disable multithreading](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading)). 
+    export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1
+Some of these command needs explaination. The line `for e in $(env | grep SLURM_ | cut -d= -f1); do unset $e; done` delete all slurm variable. Without this we get an error when using Dedalus.  The last command essentially turns off any shared parallelism. But this is recommended for Dedalus's performance since Dedalus does not use supprt parallelism (see Dedalus documentation on [Disable multithreading](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading)). We can check they indeed worked by running `echo $OMP_NUM_THREADS; echo $NUMEXPR_MAX_THREADS` and we should get `1 1`.
 
 Now we can check if we have Dedalus v3 by running
 
     python3 -m dedalus test
-We could now run an example script, e.g.: the [Rayleigh-Benard convection (2D IVP) example](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading). We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus)
-
-    git clone https://github.com/DedalusProject/dedalus.git
-    cd dedalus/examples/ivp_2d_rayleigh_benard/
-<!---
-We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus), but to avoid downloading a lot of files, we use [sparse checkout](https://stackoverflow.com/a/52269934) (you might need a newer version of git for this to work, see [here](https://stackoverflow.com/questions/72223738/failed-to-initialize-sparse-checkout)).  
+We could now run an example script, e.g.: the [Rayleigh-Benard convection (2D IVP) example](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading). We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus), but to avoid downloading a lot of files, we use [sparse checkout](https://stackoverflow.com/a/52269934) (you might need a newer version of git for this to work, see [here](https://stackoverflow.com/questions/72223738/failed-to-initialize-sparse-checkout)).  
 
     git clone --depth 1 --filter=blob:none --sparse https://github.com/DedalusProject/dedalus.git
     cd dedalus/
-    git sparse-checkout set examples/ivp_2d_rayleigh_benard
---->
+    git sparse-checkout set examples
+    cd examples/ivp_2d_rayleigh_benard
+<!---
+We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus)
+
+    git clone https://github.com/DedalusProject/dedalus.git
+    cd dedalus/examples/ivp_2d_rayleigh_benard/
+ --->
 Now we can run them. Note that we requested 4 cores and are using 4 MPI processes, these two numbers about be the same.
 
     mpiexec -n 4 python3 rayleigh_benard.py
@@ -65,7 +66,7 @@ Now we submit the script
 and check the queue
 
     squeue -u <yourusrnm> -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
-Now we see it in the queue. The reasons for why the job is not running yet are explained [here](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/best-practices#h.p_ID_118). After some patience and the job runs (you will receive an email when it is done) we can check the output in the `Dedalusv3_GreeneSingularity` directory. There should be a file named `slurm_<yourjobid>.out` that contains the output that was outputted to the terminal when we run jobs interactively. We can also find the data output in the code folder
+Now we see it in the queue. You can check the reasons for the wait [here](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/best-practices#h.p_ID_118). After some patience and the job runs (you will receive an email when it is done) we can check the output in the `Dedalusv3_GreeneSingularity` directory. There should be a file named `slurm_<yourjobid>.out` that contains the output that was outputted to the terminal when we run jobs interactively. We can also find the data output in the code folder
 
     /scratch/<yourusrnm>/dedalus/examples/ivp_2d_shear_flow
     ls snapshots
@@ -108,3 +109,7 @@ After the hard work, we can enjoy Dedalus on OOD. Follow [this tutorial](https:/
 
 ## Building the Singularity
 Under construction...
+
+
+## Acknowledgment
+We thank the NYU HPC team for their help in training and troubleshooting. 
