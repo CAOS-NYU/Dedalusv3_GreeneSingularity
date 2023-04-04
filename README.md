@@ -1,6 +1,3 @@
-
-
-
 # Using Dedalus on the NYU Greene Cluster
 
 [Dedalus](https://dedalus-project.org/) is a flexible differential equations solver using spectral methods. It is MPI-parallelized and therefore can make efficient use to high performance computing resources like the [NYU Greene Clucster](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene?authuser=0). The cluster uses Singularity containers to manage packages and slurm for job scheduling. Constructing a Singularity container for Dedalus v3 that interacts with these well is not trivial, thus making running Dedalus on Greene difficult. Luckily, the NYU HPC staff has made a Singularity for Dedalus. This note details how to use the Singularity, on single node, on multiple nodes, and in JupyterLab.
@@ -18,8 +15,8 @@ Once we are logged into the Greene cluster, `cd` into your scratch directory and
 Once we are in, paste the following commands in to start the already made singularity 
 
     singularity exec \
-    	--overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
-    	/scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
+      --overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
+      /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
     unset -f which
     source /ext3/env.sh
     export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1
@@ -46,8 +43,8 @@ All the above commands are wrapped up in a script that we can just call. We can 
 Now to run the same Dedalus code, we can just enter this commend in the log-in node:
 
     srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB \
-	    /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash /bin/bash -c \
-	    "python rayleigh_benard.py"
+      /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash /bin/bash -c \
+      "python rayleigh_benard.py"
 
 ### Submitting a job using Slurm
 To run many heavy simulations, one should queue the jobs in Greene by using Slurm scripts. [Here](https://sites.google.com/nyu.edu/nyu-hpc/training-support/tutorials/slurm-tutorial) is the general tutorial for Slurm on Greene. In this section we will run an example Slurm Dedalus job. 
@@ -116,8 +113,8 @@ Since Dedalus use MPI, we could use multiple nodes for our computation. In Green
 In a log-in node, run
 
     srun --nodes=4 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB \
-	    /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash /bin/bash -c \
-	    "python rayleigh_benard.py"
+      /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash /bin/bash -c \
+      "python rayleigh_benard.py"
 Because we have to [Disable multithreading](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading), we should keep `--cpus-per-task=1`. 
 
 After some wait for the job to start, we should see the code running, faster than using only one node. We can see four nodes used via
