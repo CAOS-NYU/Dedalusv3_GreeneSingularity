@@ -8,7 +8,7 @@
 #SBATCH --job-name=dragrace_multpl_8by16
 #SBATCH --mail-type=END
 #SBATCH --mail-user=sd3201@nyu.edu
-#SBATCH --output=dragrace_multpl_8by16.out
+#SBATCH --output=dragrace_multpl_8by16_result.out
 
 module purge
 

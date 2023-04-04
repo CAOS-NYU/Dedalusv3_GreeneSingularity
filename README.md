@@ -1,3 +1,4 @@
+
 # Using Dedalus on the NYU Greene Cluster
 
 [Dedalus](https://dedalus-project.org/) is a flexible differential equations solver using spectral methods. It is MPI-parallelized and therefore can make efficient use to high performance computing resources like the [NYU Greene Clucster](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene?authuser=0). The cluster uses Singularity containers to manage packages and slurm for job scheduling. Constructing a Singularity container for Dedalus v3 that interacts with these well is not trivial, thus making running Dedalus on Greene difficult. Luckily, the NYU HPC staff has made a Singularity for Dedalus. This note details how to use the Singularity, on single node, on multiple nodes, and in JupyterLab.
@@ -124,6 +125,9 @@ In each node, there are four CPU cores used, all near 100%.
 
 ### Submitting a job using Slurm
 It is straightforward to convert the above command into a slurm script. We provide [an example](https://github.com/Empyreal092/Dedalusv3_GreeneSingularity/blob/main/slurm_example_multnode.SBATCH) in this repo.
+
+## Testing performance
+Please see the [drag_race](https://github.com/Empyreal092/Dedalusv3_GreeneSingularity/tree/main/drag_race) folder for some performance tests of Dedalus on Greene. The tests shows our set-ups are working well.
 
 ## Making the Singularity
 Under construction... 
