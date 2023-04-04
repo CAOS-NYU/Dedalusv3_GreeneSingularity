@@ -6,7 +6,7 @@
 
 Note: The Singularities in this note could only make use of one compute node. However, due to how Dedalus is parallelized, we will need to use MPI. We will update with a version that makes use of multiple compute nodes in the future and a start is [this script](https://raw.githubusercontent.com/DedalusProject/dedalus_conda/master/conda_install_dedalus3.sh) from the official Dedalus website.
 
-Note 2: If anything does not work in this note, or that you have run into trouble, please let me know at my email ryan_sjdu@nyu.edu. I woul be happy to help.
+Note 2: If anything does not work in this note, or that you have run into trouble, please let me know at my email ryan_sjdu@nyu.edu. I would be happy to help.
  
 ## Using an already-made singularity
 ### On the command line, interactively
