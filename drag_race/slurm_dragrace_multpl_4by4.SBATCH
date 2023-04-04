@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #SBATCH --nodes=4
-#SBATCH --tasks-per-node=2
+#SBATCH --tasks-per-node=4
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4GB
 #SBATCH --time=02:00:00
 #SBATCH --job-name=Dedalus_slurm_example
 #SBATCH --mail-type=END
 #SBATCH --mail-user=sd3201@nyu.edu
-#SBATCH --output=dragrace_multpl_4by2_result.out
+#SBATCH --output=dragrace_multpl_4by4_result.out
 
 module purge
 
