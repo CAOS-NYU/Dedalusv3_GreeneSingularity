@@ -32,8 +32,8 @@ srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB --p
 Once we are in, paste the following commands to start the already made singularity 
 ```shell
 singularity exec \
-	--overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
-	/scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
+  --overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
+  /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
 unset -f which
 source /ext3/env.sh
 export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1
@@ -64,7 +64,7 @@ cat /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash
 Now to run the same Dedalus code, we can just enter this commend in the log-in node:
 ```shell
 srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB \
-	/scratch/work/public/singularity/run-dedalus-3.0.0a0.bash python rayleigh_benard.py
+  /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash python rayleigh_benard.py
 ```
 ### Submitting a job using Slurm <a name="single_slurm"></a>
 To run many heavy simulations, one should queue the jobs in Greene by using Slurm scripts. [Here](https://sites.google.com/nyu.edu/nyu-hpc/training-support/tutorials/slurm-tutorial) is the general tutorial for Slurm on Greene. In this section we will run an example Slurm Dedalus job. 
@@ -112,9 +112,9 @@ ls
 To set the conda environment, edit the file named `python`. The python file is a wrapper script that the Jupyter notebook will use to launch the Singularity container and attach it to the notebook. At the bottom of the file we have some singularity command. Edit it so that it uses the already made Sinularity with Dedalus and JupyterLab
 ```shell
 singularity exec $nv \
-	--overlay /home/sd3201/dedalus3/dedalus_ryansingularity.sqf:ro \
-	/scratch/work/public/singularity/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-	/bin/bash -c "source /ext3/env.sh; export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1; $cmd $args"
+  --overlay /home/sd3201/dedalus3/dedalus_ryansingularity.sqf:ro \
+  /scratch/work/public/singularity/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
+  /bin/bash -c "source /ext3/env.sh; export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1; $cmd $args"
 ```
 Finally, edit over the default `kernel.json` file by pasting these lines
 ```json
@@ -139,7 +139,7 @@ Since Dedalus uses MPI, we could use multiple nodes for our computation. In Gree
 In a log-in node, run
 ```shell
 srun --nodes=4 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB \
-	/scratch/work/public/singularity/run-dedalus-3.0.0a0.bash python rayleigh_benard.py
+  /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash python rayleigh_benard.py
 ```
 Because we have to [disable multithreading](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading), we should keep `--cpus-per-task=1`. 
 
@@ -162,13 +162,13 @@ There are always more packages that we want and need. We could modify the existi
 Make a copy of the existing Singularity so that we can modify it
 ```shell
 cp /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf \
-	add_cmocean.sqf
+  add_cmocean.sqf
 ```
  Then we can launch it without the `-ro` flag so we can edit it
 ```shell
 singularity exec \
-	--overlay add_cmocean.sqf \
-	/scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
+  --overlay add_cmocean.sqf \
+  /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
 
 source /ext3/env.sh
 ```
