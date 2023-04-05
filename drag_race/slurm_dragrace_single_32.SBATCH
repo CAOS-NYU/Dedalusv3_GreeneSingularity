@@ -4,7 +4,7 @@
 #SBATCH --tasks-per-node=32
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16GB
-#SBATCH --time=2-00:00:00
+#SBATCH --time=02:00:00
 #SBATCH --job-name=dragrace_single_32
 #SBATCH --mail-type=END
 #SBATCH --mail-user=sd3201@nyu.edu
