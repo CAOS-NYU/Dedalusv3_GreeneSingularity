@@ -1,3 +1,4 @@
+
 # Using Dedalus on the NYU Greene Cluster
 
 [Dedalus](https://dedalus-project.org/) is a flexible differential equations solver using spectral methods. It is MPI-parallelized and therefore can make efficient use of high performance computing resources like the [NYU Greene Cluster](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene?authuser=0). The cluster uses Singularity containers to manage packages and Slurm for job scheduling. Constructing a Singularity container for Dedalus v3 that interacts with these well is not trivial, thus making running Dedalus on Greene difficult. Luckily, the NYU HPC staff has made a Singularity for Dedalus. This note details how to use the Singularity, on single node, on multiple nodes, and in JupyterLab. At the end we will also biefly comment on how to build on the exsting Singularity by add more packages, and how to build the Singularity.
@@ -26,7 +27,7 @@ We first use Dedalus on the command line. On the command line (compared to using
 
 Once we are logged into the Greene cluster, `cd` into your scratch directory and request a computing node so that we can run some code for testing (do not run CPU heavy jobs in the log-in node)
 ```shell
-cd scratch/<yourusrnm>
+cd $SCRATCH
 srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB --pty /bin/bash
 ```
 Once we are in, paste the following commands to start the already made singularity 
@@ -52,7 +53,7 @@ Now we can run the example. Note that we requested 4 cores and are using 4 MPI p
 mpiexec -n 4 python3 rayleigh_benard.py
 mpiexec -n 4 python3 plot_snapshots.py snapshots/*.h5
 ```
-We now see the script outputting time stepping information. And if we look at the CPU usage in the node using `htop -u <yourusrnm>`, we should see near 100% usage on 4 cores. Satisfying.
+We now see the script outputting time stepping information. And if we look at the CPU usage in the node using `htop -u ${USER}`, we should see near 100% usage on 4 cores. Satisfying.
 
 Note that we did not use the Dedalus provided test `python3 -m dedalus test`. This is intentional. The test function does not work consistently with our set-up. But obviously we have a working Singularity given that we can run Dedalus examples.
 
@@ -71,7 +72,7 @@ To run many heavy simulations, one should queue the jobs in Greene by using Slur
 
 In the repository of this note, there is an example [Slurm script](https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity/blob/main/slurm_example_singlenode.SBATCH) that runs the [Periodic shear flow (2D IVP) exmple](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_shear_flow.html). To use it, we first clone this repo
 ```shell
-cd scratch/<yourusrnm>
+cd $SCRATCH
 https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity.git
 cd Dedalusv3_GreeneSingularity
 ```
@@ -87,11 +88,11 @@ sbatch slurm_example.SBATCH
 ```
 and check the queue
 ```shell
-squeue -u <yourusrnm> -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
+squeue -u ${USER} -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
 ```
 Now we see it in the queue. We can check the reasons for the wait [here](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/best-practices#h.p_ID_118). After some patience and the job runs (you will receive an email when it is done), we can check the output in the `Dedalusv3_GreeneSingularity` directory. There should be a file named `slurm_<yourjobid>.out` that contains the terminal output. We can also find the data output in the code folder
 ```shell
-/scratch/<yourusrnm>/dedalus/examples/ivp_2d_shear_flow
+$SCRATCH/dedalus/examples/ivp_2d_shear_flow
 ls snapshots
 ```
 ### JupyterLab using Open OnDemand (OOD) <a name="single_jupy"></a>
@@ -120,7 +121,7 @@ Finally, edit over the default `kernel.json` file by pasting these lines
 ```json
 {
  "argv": [
-  "/home/<yourusrnm>/.local/share/jupyter/kernels/dedalus3/python",
+  "/home/<yourusername>/.local/share/jupyter/kernels/dedalus3/python",
   "-m",
   "ipykernel_launcher",
   "-f",
@@ -145,7 +146,7 @@ Because we have to [disable multithreading](https://dedalus-project.readthedocs.
 
 After some wait for the job to start, we should see the code running. We can see four nodes used via
 ```shell
-squeue -u <yourusrnm> -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
+squeue -u $USER -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
 ```
 In each node, there are four CPU cores used, all near 100%. Nice.
 
