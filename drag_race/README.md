@@ -65,7 +65,7 @@ We compare this to running the code still using 32 cores, but on 4 nodes with 8 
 Again the multiple nodes set-up is just as fast as the single node case (even a bit faster!).
 
 ### Scaling up the cores number
-Finally we run a simulation using more cores (128) that there are on a single node (48). We are now using the full power of distributed MPI set-up. We run the code with 128 cores with 8 nodes and 16 cores each. We get the timing
+Finally we run a simulation using more cores (128) than there are on a single node (48). We are now using the full power of distributed MPI set-up. We run the code with 128 cores with 8 nodes and 16 cores each. We get the timing
 
     2023-04-04 18:28:18,257 solvers 0/128 INFO :: Setup time (init - iter 0): 4.052 sec
     2023-04-04 18:28:18,257 solvers 0/128 INFO :: Warmup time (iter 0-10): 1.452 sec
