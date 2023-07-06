@@ -16,7 +16,7 @@ Note: If anything does not work in this note, or that you have run into trouble,
     1. [On the command line, using Slurm via srun](#mult_srun)
     2. [Submitting a job using Slurm](#mult_slurm)
 3. [Testing performance](#testing_perf)
-4. [Buidling the Singularity](#make_sing)
+4. [Building the Singularity](#make_sing)
 5. [Acknowledgment](#acknowledgment)
 
  
@@ -29,7 +29,7 @@ Once we are logged into the Greene cluster, `cd` into your scratch directory and
 cd $SCRATCH
 srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB --pty /bin/bash
 ```
-Once we are in, paste the following commands to start the already made singularity 
+Once we are in, paste the following commands to start the already-made singularity 
 ```shell
 singularity exec \
   --overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
@@ -52,22 +52,22 @@ Now we can run the example. Note that we requested 4 cores and are using 4 MPI p
 mpiexec -n 4 python3 rayleigh_benard.py
 mpiexec -n 4 python3 plot_snapshots.py snapshots/*.h5
 ```
-We now see the script outputting time stepping information. And if we look at the CPU usage in the node using `htop -u ${USER}`, we should see near 100% usage on 4 cores. Satisfying.
+We now see the script outputting time-stepping information. And if we look at the CPU usage in the node using `htop -u ${USER}`, we should see near 100% usage on 4 cores. Satisfying.
 
-Note that we did not use the Dedalus provided test `python3 -m dedalus test`. This is intentional. The test function does not work consistently with our set-up. But obviously we have a working Singularity given that we can run Dedalus examples.
+Note that we did not use the Dedalus provided test `python3 -m dedalus test`. This is intentional. The test function does not work consistently with our setup. But obviously, we have a working Singularity given that we can run Dedalus examples.
 
 ### On the command line, using Slurm via `srun` <a name="single_comm_srun"></a>
 All the above commands are wrapped up in a script that we can just call. We can take a peak at the script via
 ```shell
 cat /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash
 ```
-Now to run the same Dedalus code, we can just enter this commend in the log-in node:
+Now to run the same Dedalus code, we can just enter this command in the log-in node:
 ```shell
 srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB \
   /scratch/work/public/singularity/run-dedalus-3.0.0a0.bash python rayleigh_benard.py
 ```
 ### Submitting a job using Slurm <a name="single_slurm"></a>
-To run many heavy simulations, one should queue the jobs in Greene by using Slurm scripts. [Here](https://sites.google.com/nyu.edu/nyu-hpc/training-support/tutorials/slurm-tutorial) is the general tutorial for Slurm on Greene. In this section we will run an example Slurm Dedalus job. 
+To run many heavy simulations, one should queue the jobs in Greene by using Slurm scripts. [Here](https://sites.google.com/nyu.edu/nyu-hpc/training-support/tutorials/slurm-tutorial) is the general tutorial for Slurm on Greene. In this section, we will run an example Slurm Dedalus job. 
 
 In the repository of this note, there is an example [Slurm script](https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity/blob/main/slurm_example_singlenode.SBATCH) that runs the [Periodic shear flow (2D IVP) exmple](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_shear_flow.html). To use it, we first clone this repo
 ```shell
@@ -95,7 +95,7 @@ $SCRATCH/dedalus/examples/ivp_2d_shear_flow
 ls snapshots
 ```
 ### JupyterLab using Open OnDemand (OOD) <a name="single_jupy"></a>
-Sometimes it is conveient to use JupyterLab for code developement. Note that for Dedalus, running it in JupyterLab means we can use only one core. This is acceptable if the computation is light. We should only request one core because more will be wasteful. (Note: you can run `mipexec` in Jupyter but I think then one should just use the command line.)
+Sometimes it is convenient to use JupyterLab for code development. Note that for Dedalus, running it in JupyterLab means we can use only one core. This is acceptable if the computation is light. We should only request one core because more will be wasteful. (Note: you can run `mipexec` in Jupyter but I think then one should just use the command line.)
 
 The instruction on using Open OnDemand (OOD) with Conda/Singularity for Greene is available [here](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/software/open-ondemand-ood-with-condasingularity). Since we have an already-made Singularity, we can skip most of the steps.
 
@@ -137,7 +137,7 @@ It is straightforward to convert the above command into a slurm script. We provi
 ## Testing performance<a name="testing_perf"></a>
 Please see the [drag_race](https://github.com/Empyreal092/Dedalusv3_GreeneSingularity/tree/main/drag_race) folder for some performance tests of Dedalus on Greene. The tests shows our set-ups are working well.
 
-## Buidling the Singularity<a name="make_sing"></a>
+## Building the Singularity<a name="make_sing"></a>
 We will build the Singularity by first following the [standard steps](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/software/singularity-with-miniconda). For installing Dedalus, we will by [building from source](https://dedalus-project.readthedocs.io/en/latest/pages/installation.html#building-from-source). First run
 ```shell
 mkdir $SCRATCH/dedalus_sing
@@ -163,7 +163,7 @@ cd /ext3
 git clone https://github.com/DedalusProject/dedalus.git
 cd /ext3/dedalus
 ```
-and build and install dedalus
+and build and install Dedalus
 ```shell
 CC=mpicc \
   MPI_INCLUDE_PATH=/usr/lib/x86_64-linux-gnu/openmpi/include \
@@ -173,7 +173,7 @@ CC=mpicc \
   python3 -m pip install --no-cache .
 ```
 
-At this stage we can add more packeges to the Singularity. For example, we could add [cmocean](https://matplotlib.org/cmocean), a beautiful colormap package to the existing Singularity. 
+At this stage, we can add more packages to the Singularity. For example, we could add [cmocean](https://matplotlib.org/cmocean), a beautiful colormap package to the existing Singularity. 
 ```shell
 pip install cmocean
 ```
