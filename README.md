@@ -1,7 +1,8 @@
 
+
 # Using Dedalus on the NYU Greene Cluster
 
-[Dedalus](https://dedalus-project.org/) is a flexible differential equations solver using spectral methods. It is MPI-parallelized and therefore can make efficient use of high performance computing resources like the [NYU Greene Cluster](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene?authuser=0). The cluster uses Singularity containers to manage packages and Slurm for job scheduling. Constructing a Singularity container for Dedalus v3 that interacts with these well is not trivial, thus making running Dedalus on Greene difficult. Luckily, the NYU HPC staff has made a Singularity for Dedalus. This note details how to use the Singularity, on single node, on multiple nodes, and in JupyterLab. At the end we will also biefly comment on how to build on the exsting Singularity by add more packages, and how to build the Singularity.
+[Dedalus](https://dedalus-project.org/) is a flexible differential equations solver using spectral methods. It is MPI-parallelized and therefore can make efficient use of high performance computing resources like the [NYU Greene Cluster](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene?authuser=0). The cluster uses Singularity containers to manage packages and Slurm for job scheduling. It is tricky to construct and use a Singularity container for Dedalus v3 that interacts with these well. Luckily, the NYU HPC staff has figured out much of the details. This note describes how to use the Singularity, on single node, on multiple nodes, and in JupyterLab. At the end we will also biefly comment on how to build the Singularity so that you can build your customized version.
 
 Note: If anything does not work in this note, or that you have run into trouble, please let me know at my email ryan_sjdu@nyu.edu. I would be happy to help.
 
@@ -15,9 +16,7 @@ Note: If anything does not work in this note, or that you have run into trouble,
     1. [On the command line, using Slurm via srun](#mult_srun)
     2. [Submitting a job using Slurm](#mult_slurm)
 3. [Testing performance](#testing_perf)
-4. [Editing and making the Singularity (advanced)](#edit_make)
-	1. [Adding more packeges to the existing Singularity](#add_package)
-	2. [Buidling the Singularity itself](#bulding_sing)
+4. [Buidling the Singularity](#make_sing)
 5. [Acknowledgment](#acknowledgment)
 
  
@@ -73,7 +72,7 @@ To run many heavy simulations, one should queue the jobs in Greene by using Slur
 In the repository of this note, there is an example [Slurm script](https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity/blob/main/slurm_example_singlenode.SBATCH) that runs the [Periodic shear flow (2D IVP) exmple](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_shear_flow.html). To use it, we first clone this repo
 ```shell
 cd $SCRATCH
-https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity.git
+git clone https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity.git
 cd Dedalusv3_GreeneSingularity
 ```
 We can take a look at the script
@@ -88,7 +87,7 @@ sbatch slurm_example.SBATCH
 ```
 and check the queue
 ```shell
-squeue -u ${USER} -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
+squeue -u ${USER}
 ```
 Now we see it in the queue. We can check the reasons for the wait [here](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/best-practices#h.p_ID_118). After some patience and the job runs (you will receive an email when it is done), we can check the output in the `Dedalusv3_GreeneSingularity` directory. There should be a file named `slurm_<yourjobid>.out` that contains the terminal output. We can also find the data output in the code folder
 ```shell
@@ -113,7 +112,7 @@ ls
 ```
 After this, we can enjoy Dedalus in Jupyter on OOD by following [this tutorial](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/software/open-ondemand-ood-with-condasingularity#h.pjqb0en5ivqf). Remember to request only one core because we can only use one!
 
-To learn about the details of the files you copied, you could read the `python` and `kernel.json` files. The Singularity used is mine. For instructions on how to make your own, see [the section on adding more packages to the Singularity](#add_package).
+To learn about the details of the files you copied, you could read the `python` and `kernel.json` files. The Singularity used is mine. For instructions on how to make your own, see [the section on buiding your own Singularity](#make_sing).
 
 ## Using Dedalus on multiple nodes <a name="mult_nodes"></a>
 Since Dedalus uses MPI, we could use multiple nodes for our computation. In Greene, requesting multiple nodes and lauching python in each nodes is managed by Slurm via `srun`. Therefore, we cannot use multiple nodes for interactive jobs. Therefore, we start with
@@ -128,7 +127,7 @@ Because we have to [disable multithreading](https://dedalus-project.readthedocs.
 
 After some wait for the job to start, we should see the code running. We can see four nodes used via
 ```shell
-squeue -u $USER -o "%.18i %.9P %.34j %.8u %.8T %.10M %.9l %.6D %R"
+squeue -u $USER
 ```
 In each node, there are four CPU cores used, all near 100%. Nice.
 
@@ -138,47 +137,43 @@ It is straightforward to convert the above command into a slurm script. We provi
 ## Testing performance<a name="testing_perf"></a>
 Please see the [drag_race](https://github.com/Empyreal092/Dedalusv3_GreeneSingularity/tree/main/drag_race) folder for some performance tests of Dedalus on Greene. The tests shows our set-ups are working well.
 
-## Editing and making the Singularity (advanced)<a name="edit_make"></a>
-### Adding more packeges to the existing Singularity<a name="add_package"></a>
-There are always more packages that we want and need. We could modify the existing Singularity and add more packages. We will add [cmocean](https://matplotlib.org/cmocean), a beautiful colormap package to the existing Singularity. 
-
-The existing Singularity is read only. To edit it, we need to make a new Singularity that we can edit. We follow briefly [the tutorial on making Singularity](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/software/singularity-with-miniconda). 
+## Buidling the Singularity<a name="make_sing"></a>
+We will build the Singularity by first following the [standard steps](https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/software/singularity-with-miniconda). For installing Dedalus, we will by [building from source](https://dedalus-project.readthedocs.io/en/latest/pages/installation.html#building-from-source). First run
 ```shell
 mkdir $SCRATCH/dedalus_sing
 cd $SCRATCH/dedalus_sing
 
-cp -rp /scratch/work/public/overlay-fs-ext3/overlay-5GB-200K.ext3.gz .
-gunzip overlay-5GB-200K.ext3.gz
+cp -rp /scratch/work/public/overlay-fs-ext3/overlay-1GB-400K.ext3.gz .
+gunzip overlay-1GB-400K.ext3.gz
 ```
-Now we want to copy the `/ext3` from the read-only, ready-made, Dedalus-containing Singularity to our editable Singularity. To do this we need to do a series of command. We overlay the two Singularities 
+The launch the Singularity
 ```shell
 singularity exec \
-  --overlay overlay-5GB-200K.ext3 \
-  --overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
+  --overlay overlay-1GB-400K.ext3 \
   /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
 ```
-Then
+Inside the Singularity, install miniconda
+```shell
+bash /share/apps/utils/singularity-conda/setup-conda.bash
+source /ext3/env.sh
+```
+Then clone the Dedalus source code 
 ```shell
 cd /ext3
-mkdir tmp; cd tmp
-/bin/rsync -avrP --delete /ext3/miniconda3 .
-/bin/rsync -avrP --delete /ext3/env.sh .
+git clone https://github.com/DedalusProject/dedalus.git
+cd /ext3/dedalus
+```
+and build and install dedalus
+```shell
+CC=mpicc \
+  MPI_INCLUDE_PATH=/usr/lib/x86_64-linux-gnu/openmpi/include \
+  MPI_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/openmpi \
+  FFTW_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu \
+  FFTW_INCLUDE_PATH=/usr/include \
+  python3 -m pip install --no-cache .
+```
 
-exit
-```
-Now enter a Singularity where we overlay only the editable version
-```shell
-singularity exec \
-  --overlay overlay-5GB-200K.ext3 \
-  /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
-```
-Then
-```shell
-cd /ext3
-mv tmp/* .
-rm -rf tmp
-```
-Now install the cmocean package
+At this stage we can add more packeges to the Singularity. For example, we could add [cmocean](https://matplotlib.org/cmocean), a beautiful colormap package to the existing Singularity. 
 ```shell
 pip install cmocean
 ```
@@ -190,19 +185,13 @@ python -c "import cmocean; print(cmocean.__version__); print(cmocean.__file__)"
 #/ext3/miniconda3/lib/python3.10/site-packages/cmocean/__init__.py
 #your package should be here, not .local
 ```
-Now you have your own Dedalus Singularity that you can edit. You could replace `/scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf` in this note with `$SCRATCH/dedalus_sing/overlay-5GB-200K.ext3`. If you want to share your Singularity, run inside the Singularity
+Now you have your own Dedalus Singularity that you can edit. You could replace `/scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf` in this note with `$SCRATCH/dedalus_sing/overlay-1GB-400K.ext3`. If you want to share your Singularity, run inside the Singularity
 ```shell
 mksquashfs /ext3 dedalus_readonly.sqf -keep-as-directory
 ```
 to make a read-only version. You should not let others read your `ext3` file: read access means write access for `ext3` files!
 
-The version I use will be available at `/scratch/work/sd3201/dedalus3/dedalus_ryansingularity.sqf`, if you want to use mine version. A keen reader might have already realized the Singularity used for the JupyterLab is my version.
-
-
-### Buidling the Singularity itself<a name="bulding_sing"></a>
-Under construction... 
-
-Shenglong Wang from the NYU HPC team made the Dedalus Singularity. In short, accroding to Shenglong, the basic installation is based on Singularity image `/scratch/work/public/singularity/ubuntu-22.04.1.sif`, which OpenMPI 4.1.2 is builtin. We setup all packages with the builtin OpenMPi 4.1.2. After that, replace with the Greene OpenMPI 4.1.2 built with Infiniband and Slurm enabled.
+The version I use will be available at `/scratch/work/sd3201/dedalus3/dedalus_ryansingularity.sqf`, if you want to use my version. A keen reader might have already realized the Singularity used for the JupyterLab is my version.
 
 ## Acknowledgment<a name="acknowledgment"></a>
 The Singularity files in this note are made by Shenglong Wang on the NYU HPC team. We thank the NYU HPC team for their help in training and troubleshooting. 
