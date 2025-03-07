@@ -143,38 +143,59 @@ We will build the Singularity by first following the [standard steps](https://si
 mkdir $SCRATCH/dedalus_sing
 cd $SCRATCH/dedalus_sing
 
-cp -rp /scratch/work/public/overlay-fs-ext3/overlay-1GB-400K.ext3.gz .
-gunzip overlay-1GB-400K.ext3.gz
+cp -rp /scratch/work/public/overlay-fs-ext3/overlay-5GB-200K.ext3.gz . && gunzip overlay-5GB-200K.ext3.gz
 ```
-The launch the Singularity
+Copy the bash file from HPC which is already set up for you:
 ```shell
-singularity exec \
-  --overlay overlay-1GB-400K.ext3 \
-  /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
+cp -rp /scratch/work/public/singularity/run-dedalus-3.0.3.bash .
 ```
-Inside the Singularity, install miniconda
+Using your favorate text editor, open the .bash file and replace 
 ```shell
-bash /share/apps/utils/singularity-conda/setup-conda.bash
+--overlay /scratch/work/public/singularity/dedalus-3.0.3-openmpi-5.0.6-ubuntu-24.04.1.sqf:ro \
+```
+With:
+```shell
+--overlay /scratch/<NetID>/dedalus_sing/overlay-1GB-400K.ext3\
+```
+Then launch the singularity by:
+```shell
+./run-dedalus-3.0.3.bash
+```
+Set up mini conda:
+```shell
+wget --no-check-certificate https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh -b -p /ext3/miniforge3
+```
+Next, create a wrapper script /ext3/env.sh using a text editor, like nano and put the following code in it.
+```shell
+#!/bin/bash
+
+unset -f which
+
+source /ext3/miniforge3/etc/profile.d/conda.sh
+export PATH=/ext3/miniforge3/bin:$PATH
+export PYTHONPATH=/ext3/miniforge3/bin:$PATH
+```
+Then run:
+```shell
 source /ext3/env.sh
 ```
-Then clone the Dedalus source code 
+
+And clone the Dedalus source code 
 ```shell
 cd /ext3
 git clone https://github.com/DedalusProject/dedalus.git
 cd /ext3/dedalus
 ```
+
 and build and install Dedalus
 ```shell
-CC=mpicc \
-  MPI_INCLUDE_PATH=/usr/lib/x86_64-linux-gnu/openmpi/include \
-  MPI_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/openmpi \
-  FFTW_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu \
-  FFTW_INCLUDE_PATH=/usr/include \
-  python3 -m pip install --no-cache .
+CC=mpicc python3 -m pip install --no-cache .
 ```
 
 At this stage, we can add more packages to the Singularity. For example, we could add [cmocean](https://matplotlib.org/cmocean), a beautiful colormap package to the existing Singularity. 
 ```shell
+pip install jupyter jupyterhub jupyterlab pandas matplotlib scipy
 pip install cmocean
 ```
 To test that we indeed have the package, run
