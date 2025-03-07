@@ -143,30 +143,42 @@ We will build the Singularity by first following the [standard steps](https://si
 mkdir $SCRATCH/dedalus_sing
 cd $SCRATCH/dedalus_sing
 
-cp -rp /scratch/work/public/overlay-fs-ext3/overlay-5GB-200K.ext3.gz . && gunzip overlay-5GB-200K.ext3.gz
+cp -rp /scratch/work/public/overlay-fs-ext3/overlay-5GB-200K.ext3.gz .
+gunzip overlay-5GB-200K.ext3.gz
 ```
+
 Copy the bash file from HPC which is already set up for you:
 ```shell
 cp -rp /scratch/work/public/singularity/run-dedalus-3.0.3.bash .
 ```
+
 Using your favorate text editor, open the .bash file and replace 
 ```shell
 --overlay /scratch/work/public/singularity/dedalus-3.0.3-openmpi-5.0.6-ubuntu-24.04.1.sqf:ro \
 ```
 With:
 ```shell
---overlay /scratch/<NetID>/dedalus_sing/overlay-1GB-400K.ext3\
+--overlay /scratch/<NetID>/dedalus_singoverlay-5GB-200K.ext3\
 ```
+
+
 Then launch the singularity by:
 ```shell
 ./run-dedalus-3.0.3.bash
 ```
+
+
 Set up mini conda:
 ```shell
 wget --no-check-certificate https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
 bash Miniforge3-Linux-x86_64.sh -b -p /ext3/miniforge3
 ```
-Next, create a wrapper script /ext3/env.sh using a text editor, like nano and put the following code in it.
+Next, create a wrapper script /ext3/env.sh using a text editor, like nano, e.g.
+```shell
+vim /ext3/env.sh
+nano /ext3/env.sh
+```
+and put the following code in it.
 ```shell
 #!/bin/bash
 
@@ -176,6 +188,7 @@ source /ext3/miniforge3/etc/profile.d/conda.sh
 export PATH=/ext3/miniforge3/bin:$PATH
 export PYTHONPATH=/ext3/miniforge3/bin:$PATH
 ```
+
 Then run:
 ```shell
 source /ext3/env.sh
@@ -206,7 +219,7 @@ python -c "import cmocean; print(cmocean.__version__); print(cmocean.__file__)"
 #/ext3/miniconda3/lib/python3.10/site-packages/cmocean/__init__.py
 #your package should be here, not .local
 ```
-Now you have your own Dedalus Singularity that you can edit. You could replace `/scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf` in this note with `$SCRATCH/dedalus_sing/overlay-1GB-400K.ext3`. If you want to share your Singularity, run inside the Singularity
+Now you have your own Dedalus Singularity that you can edit. You could replace `/scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf` in this note with `$SCRATCH/dedalus_sing/overlay-5GB-200K.ext3`. If you want to share your Singularity, run inside the Singularity
 ```shell
 mksquashfs /ext3 dedalus_readonly.sqf -keep-as-directory
 ```
