@@ -208,7 +208,8 @@ CC=mpicc python3 -m pip install --no-cache .
 
 At this stage, we can add more packages to the Singularity. For example, we could add [cmocean](https://matplotlib.org/cmocean), a beautiful colormap package to the existing Singularity. 
 ```shell
-pip install jupyter jupyterhub jupyterlab pandas matplotlib scipy
+conda install ipykernel
+pip install jupyter jupyterhub jupyterlab pandas matplotlib scipy 
 pip install cmocean
 ```
 To test that we indeed have the package, run
