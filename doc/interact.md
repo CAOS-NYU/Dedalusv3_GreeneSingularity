@@ -5,7 +5,15 @@ This section descibes some ways you can use Dedalus on Greene interactively. We 
 We first use Dedalus in the terminal. In the terminal (compared to using JupyterLab) Dedalus can use multiple cores (but still on a single node[^1]) to improve speed. 
 You should use this method is you need to interact with (e.g., debudding) a code that require heavier computation.
 
-Once we are logged into the Greene cluster, `cd` into your scratch directory and request a computing node so that we can run some code for testing (do not run CPU heavy jobs in the log-in node)
+Once we are logged into the Greene cluster, `cd` into your scratch directory and clone with code we will run, the [Rayleigh-Benard convection (2D IVP) example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html). We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus). To avoid downloading a lot of files, we use [sparse checkout](https://stackoverflow.com/a/52269934).  
+```shell
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DedalusProject/dedalus.git
+cd dedalus/
+git sparse-checkout set examples
+cd examples/ivp_2d_rayleigh_benard
+```
+
+Now request a computing node so that we can run some code for testing (do not run CPU heavy jobs in the log-in node)
 ```shell
 cd $SCRATCH
 srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB --pty /bin/bash
@@ -22,14 +30,6 @@ export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1
 :::{note}
 The last command essentially turns off any shared parallelism. This is recommended for Dedalus's performance since Dedalus does not use hybrid parallelism (see Dedalus documentation on [Disable multithreading](https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading)). We can check they indeed worked by running `echo $OMP_NUM_THREADS; echo $NUMEXPR_MAX_THREADS` and we should get `1 1`.
 :::
-
-We could now run an example script, e.g.: the [Rayleigh-Benard convection (2D IVP) example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html). We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus). To avoid downloading a lot of files, we use [sparse checkout](https://stackoverflow.com/a/52269934).  
-```shell
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DedalusProject/dedalus.git
-cd dedalus/
-git sparse-checkout set examples
-cd examples/ivp_2d_rayleigh_benard
-```
 Now we can run the example. Note that we requested 4 cores and are using 4 MPI processes, these two numbers should be the same.
 ```shell
 mpiexec -n 4 python3 rayleigh_benard.py
