@@ -32,7 +32,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -393,16 +393,32 @@ document.write(`
 <h2>In the terminal<a class="headerlink" href="#in-the-terminal" title="Link to this heading">#</a></h2>
 <p>We first use Dedalus in the terminal. In the terminal (compared to using JupyterLab) Dedalus can use multiple cores (but still on a single node<a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>) to improve speed.
 You should use this method is you need to interact with (e.g., debudding) a code that require heavier computation.</p>
-<p>Once we are logged into the Greene cluster, <code class="docutils literal notranslate"><span class="pre">cd</span></code> into your scratch directory and request a computing node so that we can run some code for testing (do not run CPU heavy jobs in the log-in node)</p>
+<p>Once we are logged into the Greene cluster, <code class="docutils literal notranslate"><span class="pre">cd</span></code> into your scratch directory and clone with code we will run, the <a class="reference external" href="https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html">Rayleigh-Benard convection (2D IVP) example</a>. We clone this from the <a class="reference external" href="https://github.com/DedalusProject/dedalus">Dedalus GitHub repo</a>. To avoid downloading a lot of files, we use <a class="reference external" href="https://stackoverflow.com/a/52269934">sparse checkout</a>.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$SCRATCH</span>
-srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--tasks-per-node<span class="o">=</span><span class="m">4</span><span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">2</span>:00:00<span class="w"> </span>--mem<span class="o">=</span>4GB<span class="w"> </span>--pty<span class="w"> </span>/bin/bash
+git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--filter<span class="o">=</span>blob:none<span class="w"> </span>--sparse<span class="w"> </span>https://github.com/DedalusProject/dedalus.git
+<span class="nb">cd</span><span class="w"> </span>dedalus/
+git<span class="w"> </span>sparse-checkout<span class="w"> </span><span class="nb">set</span><span class="w"> </span>examples
+<span class="nb">cd</span><span class="w"> </span>examples/ivp_2d_rayleigh_benard
+</pre></div>
+</div>
+<p>Now request a computing node so that we can run some code for testing.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not run CPU heavy jobs in the log-in node.</p>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--tasks-per-node<span class="o">=</span><span class="m">4</span><span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">2</span>:00:00<span class="w"> </span>--mem<span class="o">=</span>4GB<span class="w"> </span>--pty<span class="w"> </span>/bin/bash
 </pre></div>
 </div>
 <p>Once we are in, paste the following commands to start the already-made singularity</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>singularity<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--overlay<span class="w"> </span>/scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>/scratch/work/public/singularity/ubuntu-22.04.1.sif<span class="w"> </span>/bin/bash
-<span class="nb">unset</span><span class="w"> </span>-f<span class="w"> </span>which
+<span class="w">    </span>--overlay<span class="w"> </span>/scratch/work/public/singularity/openmpi-5.0.6-ubuntu-24.04.1.sqf:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overlay<span class="w"> </span>/scratch/work/public/singularity/dedalus-3.0.3-openmpi-5.0.6-ubuntu-24.04.1.sqf:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/scratch/work/public/singularity/ubuntu-24.04.1.sif<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/bin/bash
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">unset</span><span class="w"> </span>-f<span class="w"> </span>which
+<span class="nb">source</span><span class="w"> </span>/ext3/apps/openmpi/5.0.6/env.sh
 <span class="nb">source</span><span class="w"> </span>/ext3/env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">NUMEXPR_MAX_THREADS</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
@@ -411,19 +427,15 @@ srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</sp
 <p class="admonition-title">Note</p>
 <p>The last command essentially turns off any shared parallelism. This is recommended for Dedalus’s performance since Dedalus does not use hybrid parallelism (see Dedalus documentation on <a class="reference external" href="https://dedalus-project.readthedocs.io/en/latest/pages/performance_tips.html#disable-multithreading">Disable multithreading</a>). We can check they indeed worked by running <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">$OMP_NUM_THREADS;</span> <span class="pre">echo</span> <span class="pre">$NUMEXPR_MAX_THREADS</span></code> and we should get <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">1</span></code>.</p>
 </div>
-<p>We could now run an example script, e.g.: the <a class="reference external" href="https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html">Rayleigh-Benard convection (2D IVP) example</a>. We clone this from the <a class="reference external" href="https://github.com/DedalusProject/dedalus">Dedalus GitHub repo</a>. To avoid downloading a lot of files, we use <a class="reference external" href="https://stackoverflow.com/a/52269934">sparse checkout</a>.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--filter<span class="o">=</span>blob:none<span class="w"> </span>--sparse<span class="w"> </span>https://github.com/DedalusProject/dedalus.git
-<span class="nb">cd</span><span class="w"> </span>dedalus/
-git<span class="w"> </span>sparse-checkout<span class="w"> </span><span class="nb">set</span><span class="w"> </span>examples
-<span class="nb">cd</span><span class="w"> </span>examples/ivp_2d_rayleigh_benard
-</pre></div>
-</div>
 <p>Now we can run the example. Note that we requested 4 cores and are using 4 MPI processes, these two numbers should be the same.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mpiexec<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>python3<span class="w"> </span>rayleigh_benard.py
-mpiexec<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>python3<span class="w"> </span>plot_snapshots.py<span class="w"> </span>snapshots/*.h5
 </pre></div>
 </div>
-<p>We now see the script outputting time-stepping information. And if we look at the CPU usage in the node using <code class="docutils literal notranslate"><span class="pre">htop</span> <span class="pre">-u</span> <span class="pre">${USER}</span></code>, we should see near 100% usage on 4 cores. Satisfying.</p>
+<p>We now see the script outputting time-stepping information. And if we look at the CPU usage in the node using, we should see near 100% usage on 4 cores. Satisfying.</p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">How to check CPU usage?</p>
+<p>First, <code class="docutils literal notranslate"><span class="pre">ssh</span></code> into the compute node you are assigned. This is usually named like <code class="docutils literal notranslate"><span class="pre">cs001</span></code>. Then run the command <code class="docutils literal notranslate"><span class="pre">htop</span> <span class="pre">-u</span> <span class="pre">${USER}</span></code>.</p>
+</div>
 <div class="note dropdown admonition">
 <p class="admonition-title">How about <code class="docutils literal notranslate"><span class="pre">dedalus</span> <span class="pre">test</span></code>?</p>
 <p>We did not use the Dedalus provided test <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">dedalus</span> <span class="pre">test</span></code>. This is intentional. The test function does not work consistently with our setup. But obviously, we have a working Singularity given that we can run Dedalus examples.</p>
