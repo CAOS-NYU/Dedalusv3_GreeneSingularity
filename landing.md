@@ -6,6 +6,10 @@
 As I have graduated, I have less attention to maintain this guide. As Dedalus as well as Greene evolve, things are bound to break. You can [open an issue](https://github.com/CAOS-NYU/Dedalusv3_GreeneSingularity/issues/new). The NYU HPC team is amazing at troubleshooting. If there are parts of the guide that are out of date, please consider contributing.
 :::
 
+:::{Warning}
+The version of Dedalus used here is 3.0.0. It is nontrivial to work with a newer version where Dedalus uses MPI-4. See {ref}`make_sing` for some details about building and using a singularity of the newest version of Dedalus.
+:::
+
 ## Table of content
 ```{tableofcontents}
 ```

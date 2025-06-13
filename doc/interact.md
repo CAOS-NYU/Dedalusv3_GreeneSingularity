@@ -7,15 +7,18 @@ You should use this method is you need to interact with (e.g., debudding) a code
 
 Once we are logged into the Greene cluster, `cd` into your scratch directory and clone with code we will run, the [Rayleigh-Benard convection (2D IVP) example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html). We clone this from the [Dedalus GitHub repo](https://github.com/DedalusProject/dedalus). To avoid downloading a lot of files, we use [sparse checkout](https://stackoverflow.com/a/52269934).  
 ```shell
+cd $SCRATCH
 git clone --depth 1 --filter=blob:none --sparse https://github.com/DedalusProject/dedalus.git
 cd dedalus/
 git sparse-checkout set examples
 cd examples/ivp_2d_rayleigh_benard
 ```
 
-Now request a computing node so that we can run some code for testing (do not run CPU heavy jobs in the log-in node)
+Now request a computing node so that we can run some code for testing.
+:::{Warning}
+Do not run CPU heavy jobs in the log-in node.
+:::
 ```shell
-cd $SCRATCH
 srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB --pty /bin/bash
 ```
 Once we are in, paste the following commands to start the already-made singularity 
@@ -23,6 +26,8 @@ Once we are in, paste the following commands to start the already-made singulari
 singularity exec \
   --overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
   /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
+```
+```shell
 unset -f which
 source /ext3/env.sh
 export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1
@@ -33,10 +38,12 @@ The last command essentially turns off any shared parallelism. This is recommend
 Now we can run the example. Note that we requested 4 cores and are using 4 MPI processes, these two numbers should be the same.
 ```shell
 mpiexec -n 4 python3 rayleigh_benard.py
-mpiexec -n 4 python3 plot_snapshots.py snapshots/*.h5
 ```
-We now see the script outputting time-stepping information. And if we look at the CPU usage in the node using `htop -u ${USER}`, we should see near 100% usage on 4 cores. Satisfying.
-
+We now see the script outputting time-stepping information. And if we look at the CPU usage in the node using, we should see near 100% usage on 4 cores. Satisfying.
+:::{admonition} How to check CPU usage?
+:class: tip, dropdown
+First, `ssh` into the compute node you are assigned. This is usually named like `cs001`. Then run the command `htop -u ${USER}`.
+:::
 :::{admonition} How about `dedalus test`?
 :class: note, dropdown
 We did not use the Dedalus provided test `python3 -m dedalus test`. This is intentional. The test function does not work consistently with our setup. But obviously, we have a working Singularity given that we can run Dedalus examples.
