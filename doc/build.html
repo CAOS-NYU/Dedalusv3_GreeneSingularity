@@ -32,7 +32,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -372,7 +372,8 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building">Building</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-this-singularity">Using this Singularity</a></li>
 </ul>
             </nav>
         </div>
@@ -386,12 +387,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="building-the-singularity">
 <span id="make-sing"></span><h1>Building the Singularity<a class="headerlink" href="#building-the-singularity" title="Link to this heading">#</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This is under construction!</p>
-</div>
-<section id="building-from-source">
-<h2>Building from source<a class="headerlink" href="#building-from-source" title="Link to this heading">#</a></h2>
+<p>All previous sections of the note use <a class="reference external" href="https://github.com/DedalusProject/dedalus/releases/tag/v3.0.0">Dedalus version 3.0.0</a>. This is when we made the old singularity. It works well unless you need the newest feature of Dedalus.
+However, we see the value of having a way to build a new singularity in case one want to add more packages. This has been surprisingly difficult at this time.</p>
+<p>It is easier to work with this earlier version (see details below). The newer version (<a class="reference external" href="https://github.com/DedalusProject/dedalus/releases/tag/v3.0.3">v3.0.3</a> at the time of writing) uses requires MPI-4, which is hard to make work with the current version of NYU Greene cluster. Therefore, treat the below instructions with a grain of salt. Contact NYU HPC stuff if it does not work.</p>
+<p>Finally, NYU HPC stuff states</p>
+<blockquote>
+<div><p>This issue is expected to be resolved with the next-generation HPC cluster.</p>
+</div></blockquote>
+<p>Hopefully this can be simplified down the line.</p>
+<section id="building">
+<h2>Building<a class="headerlink" href="#building" title="Link to this heading">#</a></h2>
 <p>We will build the Singularity by first following the <a class="reference external" href="https://sites.google.com/nyu.edu/nyu-hpc/hpc-systems/greene/software/singularity-with-miniconda">standard steps</a>. For installing Dedalus, we will be <a class="reference external" href="https://dedalus-project.readthedocs.io/en/latest/pages/installation.html#building-from-source">building from source</a>. First run</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span><span class="nv">$SCRATCH</span>/dedalus_sing
 <span class="nb">cd</span><span class="w"> </span><span class="nv">$SCRATCH</span>/dedalus_sing
@@ -435,7 +440,7 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 <span class="c1">#your package should be here, not .local</span>
 </pre></div>
 </div>
-<p>Now you have your own Dedalus Singularity that you can edit. You could replace <code class="docutils literal notranslate"><span class="pre">/scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf</span></code> in this note with <code class="docutils literal notranslate"><span class="pre">$SCRATCH/dedalus_sing/overlay-1GB-400K.ext3</span></code>. If you want to share your Singularity, run inside the Singularity</p>
+<p>Now you have your own Dedalus Singularity that you can edit. If you want to share your Singularity, run inside the Singularity</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mksquashfs<span class="w"> </span>/ext3<span class="w"> </span>dedalus_readonly.sqf<span class="w"> </span>-keep-as-directory
 </pre></div>
 </div>
@@ -445,6 +450,26 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 <p>You should not let others read your <code class="docutils literal notranslate"><span class="pre">ext3</span></code> file: read access means write access for <code class="docutils literal notranslate"><span class="pre">ext3</span></code> files!</p>
 </div>
 <!-- The version I use will be available at `/scratch/work/sd3201/dedalus3/dedalus_ryansingularity.sqf`, if you want to use my version. A keen reader might have already realized the Singularity used for the JupyterLab is my version. -->
+</section>
+<section id="using-this-singularity">
+<h2>Using this Singularity<a class="headerlink" href="#using-this-singularity" title="Link to this heading">#</a></h2>
+<p>This new Singularity requires some different commands to use, compared to the previous instructions.</p>
+<p>Using interactive mode in the terminal seems to have an issue with efficiency. It cannot make use of multiple cores on a single node to the maximum.</p>
+<p>JupyterLab should work fine (I did not test this). You just need to hook up your Singularity to OOD.</p>
+<p>To use Slrum, see the script</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/scratch/work/public/singularity/run-dedalus-3.0.3.bash
+</pre></div>
+</div>
+<p>To use this script, run</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>srun<span class="w"> </span>--mpi<span class="o">=</span>pmix<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--tasks-per-node<span class="o">=</span><span class="m">4</span><span class="w"> </span>--mem<span class="o">=</span>4GB<span class="w"> </span>/scratch/work/public/singularity/run-dedalus-3.0.3.bash<span class="w"> </span>python<span class="w"> </span>rayleigh_benard.py
+</pre></div>
+</div>
+<p>You should replace the corresponding line in the <code class="docutils literal notranslate"><span class="pre">.SBATCH</span></code> file.</p>
+<p>To use your own overlay file, you can modify the line</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--overlay<span class="w"> </span>/scratch/work/public/singularity/dedalus-3.0.3-openmpi-5.0.6-ubuntu-24.04.1.sqf:ro<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<p>in <code class="docutils literal notranslate"><span class="pre">run-dedalus-3.0.3.bash</span></code> to point to your overlay file.</p>
 </section>
 </section>
 
@@ -503,7 +528,8 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building">Building</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-this-singularity">Using this Singularity</a></li>
 </ul>
   </nav></div>
 

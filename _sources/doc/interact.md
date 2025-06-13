@@ -24,14 +24,11 @@ srun --nodes=1 --tasks-per-node=4 --cpus-per-task=1 --time=2:00:00 --mem=4GB --p
 Once we are in, paste the following commands to start the already-made singularity 
 ```shell
 singularity exec \
-    --overlay /scratch/work/public/singularity/openmpi-5.0.6-ubuntu-24.04.1.sqf:ro \
-    --overlay /scratch/work/public/singularity/dedalus-3.0.3-openmpi-5.0.6-ubuntu-24.04.1.sqf:ro \
-    /scratch/work/public/singularity/ubuntu-24.04.1.sif \
-    /bin/bash
+  --overlay /scratch/work/public/singularity/dedalus-3.0.0a0-openmpi-4.1.2-ubuntu-22.04.1.sqf:ro \
+  /scratch/work/public/singularity/ubuntu-22.04.1.sif /bin/bash
 ```
 ```shell
 unset -f which
-source /ext3/apps/openmpi/5.0.6/env.sh
 source /ext3/env.sh
 export OMP_NUM_THREADS=1; export NUMEXPR_MAX_THREADS=1
 ```
